@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p>Your Guesses : </p>
+    <div>Status : </div>
+    <script>
+        // Word Guessing Game 
+        let words = ["coffee", "script", "nasty", "cook", "beauty"]
+        let rand_idx = Math.floor(Math.random() * words.length)
+
+        let word = words[rand_idx]
+
+        let trials = 0
+        while (trials < 3) {
+            let user_guess = prompt('Guess a word from  ["coffee", "script", "nasty", "cook", "beauty"]')
+
+            if(user_guess === word){
+                let p = document.querySelector("p")
+                p.innerText += `, ${user_guess}`
+                let div = document.querySelector("div")
+                div.innerText = `Hurray. You guessed correct in ${trials + 1} tries`
+                break;
+            }
+            else{
+                let p = document.querySelector("p")
+                p.innerText += `, ${user_guess}`
+                let div = document.querySelector("div")
+                div.innerText = `Sorry, you are on trial no : ${trials + 1} and you are incorrect `
+            }
+            trials++
+        }
+
+    </script>
+</body>
+</html>

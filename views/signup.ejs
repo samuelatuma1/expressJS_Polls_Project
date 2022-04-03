@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <style>
+        div{
+            background-color: maroon;
+            color: rgb(255, 246, 247);
+        }
+    </style>
+</head>
+<body>
+    <h1>Sign Up </h1>
+    <% if (locals.errs) { %>
+            <% for (let err of errs){ %>
+                <div><%=  err.msg %></div>
+            <%}%>
+        <% } %>
+    <% if (locals.msg){ %>
+        <li><%= msg %></li>
+    <% } %>
+    <form method="POST">
+        <p>
+            <label for="username">
+                    Username : <input name="username" placeholder="username">
+            </label>
+        </p>
+
+        <p>
+            <label for="password">
+                    Password : <input name="password" placeholder="password">
+            </label>
+        </p>
+
+        <button>Sign Up Now!!</button>
+    </form>
+</body>
+</html>

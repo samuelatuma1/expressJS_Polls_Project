@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>
+        Welcome <%= locals.user %>
+    </h1>
+    <p>
+        
+                Pick a number whole number in your . The computer will guess the right answer in n tries max
+                If computer guess is bigger than chosen number, input g, else if smaller, input s, else input e or nothing          
+                
+    </p>
+    <form>
+        <input type="number" pattern="[0-9]+" placeholder="Pick a number range for computer to guess within" required min="1">
+        <button>Play Game</button>
+    </form>
+
+    <script>
+        let form = document.querySelector("form")
+
+        form.addEventListener("submit", (e) => {
+            e.preventDefault()
+            let data = parseInt(document.querySelector("input").value)
+            alert(Math.floor(Math.log2(data)) + 1 + ' trials')
+            let start = 0
+            let end = data
+            let c_guess = Math.floor((start + end) / 2)
+            alert('computers guess : ' + c_guess)
+            let user_guess = prompt(`If computer guess (${c_guess}) is bigger than chosen number, input g, else if smaller, input s, else input c or nothing `)
+
+            let count = 1
+            while(user_guess !== 'c' || user_guess != ''){
+                if(user_guess === 'c' || user_guess === ''){
+                    break;
+                }
+                if (user_guess === 's'){
+                    start = c_guess
+                }
+                else{
+                    end = c_guess
+                }
+                c_guess = Math.floor((start + end) / 2)
+                alert('computers guess : ' + c_guess)
+                 user_guess = prompt(`If computer guess (${c_guess}) is bigger than chosen number, input g, else if smaller, input s, else input c or nothing `)
+                count ++
+            }
+            alert ("computer guessed right in " + count + ' trials')
+            
+            
+        })
+    </script>
+</body>
+</html>

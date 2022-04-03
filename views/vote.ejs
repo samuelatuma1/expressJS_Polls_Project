@@ -1,0 +1,23 @@
+<%- include ('./head') %>
+    <h1>Welcome to Polls : <%= locals.user || 'anonymous' %></h1>
+    <% if (locals.msg){ %>
+            <p><%= locals.msg %></p>
+    <%}  %> 
+    <form method="POST">
+        <label for="userId">
+            User Id : <input name="userId" id="userId">
+        </label>
+        <label for="vote">
+            Vote : 
+            <select name="vote" id="vote">
+                <% for (let party of parties) {%>
+                    <option value="<%= party %>"><%= party.toUpperCase() %></option>
+                <% } %>
+
+            </select>
+        </label>
+
+        <button>Vote</button>
+    </form>
+    <p>See <a href="/voteRes">Vote Result Here</a>
+<%- include ("./foot.ejs") %>

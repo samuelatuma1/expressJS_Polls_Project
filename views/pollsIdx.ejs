@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polls</title>
+    <style>
+        body{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            display : flex;
+            flex-wrap : wrap;
+            justify-content: center;
+        }
+        h1{
+            width : 100%;
+        }
+        select, input{
+            padding : 7px;
+            border-radius : 14px;
+            border: transparent;
+            background-color: rgb(215, 232, 247);
+            
+        }
+        button{
+            background-color: maroon;
+            color : white;
+            box-shadow : 0px 0px 4px 1px maroon;
+            padding : 10px;
+            border: transparent;
+            border-radius: 4px;
+        }
+        form, section, main {
+            padding : 20px;
+            margin : 10px;
+            box-shadow: 0px 0px 20px 0px rgb(228, 226, 226);
+            border-radius : 20px;
+            min-width : 80%;
+        }
+        summary {
+            padding : 10px;
+            
+        }
+        header{
+            padding : 15px;
+            background-color: rgb(174, 201, 224);
+            border-radius : 30px;
+            margin : 10px;
+        }
+        @media screen and (min-width: 600px){
+            form, section {
+                min-width : 42%;
+            }
+        }
+        .userChoice{
+            background-color: aqua;
+        }
+    </style>
+</head>
+<body>
+    <!-- {signedIn, userData} -->
+    <h1>Welcome to Polls : <%= locals.signedIn %></h1>
+    <!-- {  "sam":{"password":"12345","polls":[]} } -->
+
+    <form method="POST">
+        <h2>Add Poll</h2>
+        <p>
+           <label for="question">
+            Question : <input name="question" id="question" required minlength="2" value="what is your Poll question">
+           </label>
+        </p>
+        <p>
+            <label for="option">
+                Option : <input name="option" id="option" value="chooseable option">
+
+                <input type="button" value="Add Option">
+            </label>
+        </p>
+
+        <p>
+            <label for="category">
+                Category : 
+                <select name="category" id="category">
+                    <option value="politics">POLITICS</option>
+                    <option value="sports">SPORTS</option>
+                    <option value="edu">Edu</option>
+                </select>
+            </label>
+        </p>
+
+        <button>Add Poll</button>
+    </form>
+
+    <section aria-label="view polls">
+        <h1>View Polls</h1>
+        <select  id="viewPolls">
+            <option value="politics">POLITICS</option>
+            <option value="sports">SPORTS</option>
+            <option value="edu">Edu</option>
+        </select>
+    </section>
+
+    <main>
+        <h1>Take Polls</h1>
+        <div></div>
+    </main>
+    <script>
+        const form = document.querySelector("form")
+
+        let options = new Set();
+        const optionBtn = document.querySelector("input[type=button]")
+        const addOption = (e) => {
+            let option = document.querySelector("#option").value
+            
+            if(option.length < 1){
+                alert("Invalid Option")
+                return
+            }
+            options.add(option)
+            alert(`${option} added`)
+            document.querySelector("#option").value = ''
+            console.log(options)
+        }
+        optionBtn.addEventListener("click", addOption)
+
+        form.onsubmit = submitForm
+
+        function submitForm (e) {
+            e.preventDefault()
+            let question = document.querySelector("#question").value
+            if(question.length < 1){
+                alert("Invalid Poll")
+                return
+            }
+            let category = document.querySelector("#category").value
+
+            let pollOptions =  Array.from(options)
+            if(pollOptions.length < 1){
+                alert("Please add at least One Option")
+                return
+            }
+            let pollData = {
+                question, pollOptions, category
+            }
+            document.querySelector("#option").value = ''
+            document.querySelector("#question").value = ''
+            options = new Set();
+            return postFormData(pollData)
+            
+        }
+
+        async function postFormData(pollData){
+            let formData = JSON.stringify(pollData)
+            let fetchPostPoll = await fetch("/posts/", {
+                method : "POST",
+                credentials: 'same-origin',
+                headers : {
+                    "Content-Type" : "application/json"
+                },
+                body : formData
+            })
+
+            let pollsRes = await fetchPostPoll.text()
+            alert(pollsRes)
+        }
+
+        const viewPolls = document.querySelector("#viewPolls")
+        viewPolls.addEventListener("change", getPolls)
+
+        async function getPolls(e){
+            let choice = e.target.value
+            
+            const fetchPoll = await fetch(`/posts/getPolls/?cat=${choice}`)
+            const pollsArr = await fetchPoll.json()
+            return showPolls(pollsArr)
+        }
+        
+        /** 
+         * @param {Object} obj : -> An Object
+         * @returns the total number of keys in an Object
+        */
+        const countVotes = (obj) => {
+            let count = 0
+            for(let item in obj){
+                count++
+            }
+            return count
+        }
+        /** 
+         * @param {Object} votes : -> user : vote key value pair
+         * @returns {Object} vote : count  key value pair showing vote and count
+        */
+        function voteCounts(votes){
+            let voteRes = {}
+            for(let [user, party] of Object.entries(votes)){
+                if(voteRes.hasOwnProperty(party)){
+                    voteRes[party] += 1
+                }
+                else{
+                    voteRes[party] = 1
+                }
+            }
+
+            return voteRes
+        }
+
+        function showPolls(pollsArr){
+            console.log(pollsArr)
+            let pollsDiv = document.querySelector('main > div')
+            pollsDiv.innerHTML = ``
+            pollsArr.forEach(pollDetail => {
+                let pollVotes = pollDetail.poll.votes
+                let totalInterests = countVotes(pollDetail.poll.votes)
+                
+                let userVotes = voteCounts(pollVotes)
+                // console.log(userVotes)
+                
+                let summary = document.createElement('details')
+                let details = document.createElement('summary')
+
+                details.innerHTML = `
+                    Author : ${pollDetail.author}
+                    <br>
+                     Poll: ${pollDetail.poll.question}    
+                    
+                `
+                summary.appendChild(details)
+                pollDetail.poll.pollOptions.forEach(option => {
+                    let header = document.createElement('header')
+                    let percentShare = parseInt((((userVotes[option] || 0) / totalInterests) || 0 )* 100)
+                    if(option === pollVotes['<%= signedIn %>']){
+                        header.classList.add("userChoice")
+                    }
+                    header.setAttribute('data-qst', pollDetail.poll.question)
+                    header.setAttribute('data-author', pollDetail.author)
+                    header.innerText = option + `(${percentShare}%)`
+                    summary.append(header)
+                })
+
+
+
+                pollsDiv.appendChild(summary)
+            })
+
+        }
+
+        document.body.addEventListener("click", submitVote)
+        function submitVote (e) {
+            let clicked = e.target
+            
+            if (clicked.tagName === 'HEADER'){
+                console.dir(clicked)
+                let author = clicked.dataset.author
+                let qst = clicked.dataset.qst
+                let choice = clicked.innerText
+                choice = choice.slice(0, choice.lastIndexOf('('))
+                console.log(choice)
+                fetch('/posts/getPolls/', {
+                    method : "POST",
+                    headers : {
+                        "Content-Type" : "application/json"
+                    }, 
+                    body : JSON.stringify({
+                        author, qst, choice
+                    })
+                }).then(data => {})
+
+            }
+        }
+
+    </script>
+</body>
+</html>
